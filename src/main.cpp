@@ -18,7 +18,7 @@ enum class RunResult {
 };
 
 // 编译用户提交的 C++ 源码
-bool compileCode(const string& sourceFile, const string& exeFile) {
+bool compileCode(const string& sourceFile, const string& exeFile, const string& compileErrorFile) {
     pid_t pid = fork();
 
     if (pid < 0) {
@@ -27,6 +27,17 @@ bool compileCode(const string& sourceFile, const string& exeFile) {
     }
 
     if (pid == 0) {
+        // 把 g++ 的错误信息重定向到 compile_error.txt
+        int errFd = open(compileErrorFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+        if (errFd < 0) {
+            cerr << "open compile error file failed" << endl;
+            _exit(1);
+        }
+
+        dup2(errFd, STDERR_FILENO);
+        close(errFd);
+
         // 等价于：g++ sourceFile -O2 -std=c++17 -o exeFile
         execlp(
             "g++",
@@ -161,13 +172,15 @@ int main(int argc, char* argv[]) {
     string exeFile = "./judge_tmp_main";
     string outputFile = "output.txt";
     string errorFile = "error.txt";
+    string compileErrorFile = "compile_error.txt";
 
     int timeLimitMs = 2000;
 
-    bool compileOk = compileCode(sourceFile, exeFile);
+    bool compileOk = compileCode(sourceFile, exeFile, compileErrorFile);
 
     if (!compileOk) {
         cout << "Result: CE" << endl;
+        cout << "Compile Error saved to " << compileErrorFile << endl;
         return 0;
     }
 
