@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <chrono>
 #include <csignal>
+#include <sys/resource.h>
 #include <thread>
 #include <filesystem>
 
@@ -66,7 +67,8 @@ RunResult runProgram(const string& exeFile,
                      const string& inputFile,
                      const string& outputFile,
                      const string& errorFile,
-                     int timeLimitMs) {
+                     int timeLimitMs,
+                     int& timeUsedMs) {
     pid_t pid = fork();
 
     if (pid < 0) {
@@ -75,6 +77,13 @@ RunResult runProgram(const string& exeFile,
     }
 
     if (pid == 0) {
+        // 禁止用户程序崩溃时生成 core dump 文件
+        // 这样可以避免产生大文件，也让 RE 更干净
+        struct rlimit coreLimit;
+        coreLimit.rlim_cur = 0;
+        coreLimit.rlim_max = 0;
+        setrlimit(RLIMIT_CORE, &coreLimit);
+
         int inFd = open(inputFile.c_str(), O_RDONLY);
         int outFd = open(outputFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
         int errFd = open(errorFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -107,6 +116,7 @@ RunResult runProgram(const string& exeFile,
     int status = 0;
 
     auto start = chrono::steady_clock::now();
+    timeUsedMs = 0;
 
     while (true) {
         // WNOHANG 表示非阻塞等待
@@ -114,7 +124,10 @@ RunResult runProgram(const string& exeFile,
         pid_t ret = waitpid(pid, &status, WNOHANG);
 
         if (ret == pid) {
-            // 子进程已经结束
+            // 子进程已经结束，记录实际运行时间
+            auto now = chrono::steady_clock::now();
+            timeUsedMs = chrono::duration_cast<chrono::milliseconds>(now - start).count();
+
             if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
                 return RunResult::OK;
             }
@@ -130,6 +143,8 @@ RunResult runProgram(const string& exeFile,
         auto elapsed = chrono::duration_cast<chrono::milliseconds>(now - start).count();
 
         if (elapsed > timeLimitMs) {
+            timeUsedMs = elapsed;
+
             // 超时后杀死用户程序
             kill(pid, SIGKILL);
 
@@ -192,21 +207,26 @@ int main(int argc, char* argv[]) {
 
     cout << "Compile: OK" << endl;
 
+    int timeUsedMs = 0;
+
     RunResult runResult = runProgram(
         exeFile,
         inputFile,
         outputFile,
         errorFile,
-        timeLimitMs
+        timeLimitMs,
+        timeUsedMs
     );
 
     if (runResult == RunResult::TLE) {
         cout << "Result: TLE" << endl;
+        cout << "Time: " << timeUsedMs << " ms" << endl;
         return 0;
     }
 
     if (runResult == RunResult::RE) {
         cout << "Result: RE" << endl;
+        cout << "Time: " << timeUsedMs << " ms" << endl;
         return 0;
     }
 
@@ -217,6 +237,8 @@ int main(int argc, char* argv[]) {
     } else {
         cout << "Result: WA" << endl;
     }
+
+    cout << "Time: " << timeUsedMs << " ms" << endl;
 
     return 0;
 }
