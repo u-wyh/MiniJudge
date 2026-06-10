@@ -2,7 +2,6 @@
 using namespace std;
 
 int main() {
-    int *p = nullptr;
-    *p = 1;
+    cout << "hello" << endl
     return 0;
 }
