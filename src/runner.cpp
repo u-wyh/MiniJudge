@@ -30,6 +30,18 @@ RunResult runProgram(const string& exeFile,
         coreLimit.rlim_cur = 0;
         coreLimit.rlim_max = 0;
         setrlimit(RLIMIT_CORE, &coreLimit);
+        // 限制输出文件大小：1 MB
+        struct rlimit fileLimit;
+        fileLimit.rlim_cur = 1024 * 1024;
+        fileLimit.rlim_max = 1024 * 1024;
+        setrlimit(RLIMIT_FSIZE, &fileLimit);
+
+        // 限制虚拟内存大小：128 MB
+        struct rlimit memoryLimit;
+        memoryLimit.rlim_cur = 128 * 1024 * 1024;
+        memoryLimit.rlim_max = 128 * 1024 * 1024;
+        setrlimit(RLIMIT_AS, &memoryLimit);
+
 
         int inFd = open(inputFile.c_str(), O_RDONLY);
         int outFd = open(outputFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
