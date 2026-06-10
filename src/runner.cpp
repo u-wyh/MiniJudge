@@ -11,6 +11,16 @@
 
 using namespace std;
 
+namespace {
+const int TIME_LIMIT_MS = 2000;
+const int WAIT_INTERVAL_MS = 1;
+
+const rlim_t OUTPUT_LIMIT_BYTES = 1024 * 1024;        // 1 MB
+const rlim_t MEMORY_LIMIT_BYTES = 128 * 1024 * 1024;  // 128 MB
+const rlim_t PROCESS_LIMIT_COUNT = 16;
+}
+
+
 RunResult runProgram(const string& exeFile,
                      const string& inputFile,
                      const string& outputFile,
@@ -35,20 +45,20 @@ RunResult runProgram(const string& exeFile,
         setrlimit(RLIMIT_CORE, &coreLimit);
         // 限制输出文件大小：1 MB
         struct rlimit fileLimit;
-        fileLimit.rlim_cur = 1024 * 1024;
-        fileLimit.rlim_max = 1024 * 1024;
+        fileLimit.rlim_cur = OUTPUT_LIMIT_BYTES;
+        fileLimit.rlim_max = OUTPUT_LIMIT_BYTES;
         setrlimit(RLIMIT_FSIZE, &fileLimit);
 
         // 限制虚拟内存大小：128 MB
         struct rlimit memoryLimit;
-        memoryLimit.rlim_cur = 128 * 1024 * 1024;
-        memoryLimit.rlim_max = 128 * 1024 * 1024;
+        memoryLimit.rlim_cur = MEMORY_LIMIT_BYTES;
+        memoryLimit.rlim_max = MEMORY_LIMIT_BYTES;
         setrlimit(RLIMIT_AS, &memoryLimit);
 
         // 限制进程数量：最多 16 个进程
         struct rlimit processLimit;
-        processLimit.rlim_cur = 16;
-        processLimit.rlim_max = 16;
+        processLimit.rlim_cur = PROCESS_LIMIT_COUNT;
+        processLimit.rlim_max = PROCESS_LIMIT_COUNT;
         setrlimit(RLIMIT_NPROC, &processLimit);
 
 
@@ -124,6 +134,6 @@ RunResult runProgram(const string& exeFile,
         }
 
         // 避免父进程一直空转占 CPU
-        this_thread::sleep_for(chrono::milliseconds(1));
+        this_thread::sleep_for(chrono::milliseconds(WAIT_INTERVAL_MS));
     }
 }
