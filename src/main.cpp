@@ -89,6 +89,10 @@ int main(int argc, char* argv[]) {
             cout << "Result: AC" << endl;
         } else {
             cout << "Result: WA" << endl;
+        string compareMessage = getLastCompareMessage();
+        if (!compareMessage.empty()) {
+            cout << compareMessage;
+        }
         }
 
         cout << "Time: " << timeUsedMs << " ms" << endl;
@@ -148,6 +152,12 @@ int main(int argc, char* argv[]) {
             cout << "WA";
             finalResult = "WA";
             cout << " (" << timeUsedMs << " ms)" << endl;
+
+            string compareMessage = getLastCompareMessage();
+            if (!compareMessage.empty()) {
+                cout << compareMessage;
+            }
+
             break;
         }
 
