@@ -2,6 +2,7 @@
 #include "comparator.h"
 #include "runner.h"
 #include "judge_config.h"
+#include "config_loader.h"
 
 #include <filesystem>
 #include <iostream>
@@ -47,6 +48,15 @@ int main(int argc, char* argv[]) {
     string compileErrorFile = tmpDir + "/compile_error.txt";
 
     JudgeConfig config;
+
+    if (multiCaseMode) {
+        string configFile = problemDir + "/problem.conf";
+        if (loadJudgeConfig(configFile, config)) {
+            cout << "Config: loaded from " << configFile << endl;
+        } else {
+            cout << "Config: using default limits" << endl;
+        }
+    }
 
     // 第一步：编译用户代码
     bool compileOk = compileCode(sourceFile, exeFile, compileErrorFile);

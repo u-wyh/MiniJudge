@@ -2,7 +2,7 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -Iinclude
 
 TARGET = minijudge
-SRC = src/main.cpp src/compiler.cpp src/runner.cpp src/comparator.cpp
+SRC = src/main.cpp src/compiler.cpp src/runner.cpp src/comparator.cpp src/config_loader.cpp
 
 all: $(TARGET)
 
