@@ -1,0 +1,15 @@
+# build output
+minijudge
+*.o
+*.out
+build/
+
+# temporary judge files
+judge_tmp/
+output.txt
+error.txt
+compile_error.txt
+
+# editor
+.vscode/
+.idea/
