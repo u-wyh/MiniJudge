@@ -1,7 +1,6 @@
 # build output
 minijudge
 *.o
-*.out
 build/
 
 # temporary judge files
