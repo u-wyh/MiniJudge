@@ -1,6 +1,7 @@
 #include "compiler.h"
 #include "comparator.h"
 #include "runner.h"
+#include "judge_config.h"
 
 #include <filesystem>
 #include <iostream>
@@ -45,7 +46,7 @@ int main(int argc, char* argv[]) {
     string errorFile = tmpDir + "/error.txt";
     string compileErrorFile = tmpDir + "/compile_error.txt";
 
-    int timeLimitMs = 2000;
+    JudgeConfig config;
 
     // 第一步：编译用户代码
     bool compileOk = compileCode(sourceFile, exeFile, compileErrorFile);
@@ -67,7 +68,7 @@ int main(int argc, char* argv[]) {
             inputFile,
             outputFile,
             errorFile,
-            timeLimitMs,
+            config,
             timeUsedMs
         );
 
@@ -122,7 +123,7 @@ int main(int argc, char* argv[]) {
             caseInputFile,
             outputFile,
             errorFile,
-            timeLimitMs,
+            config,
             timeUsedMs
         );
 

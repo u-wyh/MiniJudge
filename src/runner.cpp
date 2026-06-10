@@ -1,4 +1,5 @@
 #include "runner.h"
+#include "judge_config.h"
 
 #include <chrono>
 #include <csignal>
@@ -25,7 +26,7 @@ RunResult runProgram(const string& exeFile,
                      const string& inputFile,
                      const string& outputFile,
                      const string& errorFile,
-                     int timeLimitMs,
+                     const JudgeConfig& config,
                      int& timeUsedMs) {
     pid_t pid = fork();
 
@@ -45,20 +46,20 @@ RunResult runProgram(const string& exeFile,
         setrlimit(RLIMIT_CORE, &coreLimit);
         // 限制输出文件大小：1 MB
         struct rlimit fileLimit;
-        fileLimit.rlim_cur = OUTPUT_LIMIT_BYTES;
-        fileLimit.rlim_max = OUTPUT_LIMIT_BYTES;
+        fileLimit.rlim_cur = config.outputLimitMb * 1024 * 1024;
+        fileLimit.rlim_max = config.outputLimitMb * 1024 * 1024;
         setrlimit(RLIMIT_FSIZE, &fileLimit);
 
         // 限制虚拟内存大小：128 MB
         struct rlimit memoryLimit;
-        memoryLimit.rlim_cur = MEMORY_LIMIT_BYTES;
-        memoryLimit.rlim_max = MEMORY_LIMIT_BYTES;
+        memoryLimit.rlim_cur = config.memoryLimitMb * 1024 * 1024;
+        memoryLimit.rlim_max = config.memoryLimitMb * 1024 * 1024;
         setrlimit(RLIMIT_AS, &memoryLimit);
 
         // 限制进程数量：最多 16 个进程
         struct rlimit processLimit;
-        processLimit.rlim_cur = PROCESS_LIMIT_COUNT;
-        processLimit.rlim_max = PROCESS_LIMIT_COUNT;
+        processLimit.rlim_cur = config.processLimit;
+        processLimit.rlim_max = config.processLimit;
         setrlimit(RLIMIT_NPROC, &processLimit);
 
 
@@ -121,7 +122,7 @@ RunResult runProgram(const string& exeFile,
         auto now = chrono::steady_clock::now();
         auto elapsed = chrono::duration_cast<chrono::milliseconds>(now - start).count();
 
-        if (elapsed > timeLimitMs) {
+        if (elapsed > config.timeLimitMs) {
             timeUsedMs = elapsed;
 
             // 超时后杀死用户程序
@@ -134,6 +135,6 @@ RunResult runProgram(const string& exeFile,
         }
 
         // 避免父进程一直空转占 CPU
-        this_thread::sleep_for(chrono::milliseconds(WAIT_INTERVAL_MS));
+        this_thread::sleep_for(chrono::milliseconds(config.waitIntervalMs));
     }
 }
