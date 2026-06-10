@@ -8,6 +8,7 @@
 #include <chrono>
 #include <csignal>
 #include <thread>
+#include <filesystem>
 
 using namespace std;
 
@@ -169,10 +170,15 @@ int main(int argc, char* argv[]) {
     string inputFile = argv[2];
     string answerFile = argv[3];
 
-    string exeFile = "./judge_tmp_main";
-    string outputFile = "output.txt";
-    string errorFile = "error.txt";
-    string compileErrorFile = "compile_error.txt";
+    string tmpDir = "judge_tmp";
+
+    // 创建临时目录，用来存放编译产物和输出文件
+    filesystem::create_directories(tmpDir);
+
+    string exeFile = tmpDir + "/main";
+    string outputFile = tmpDir + "/output.txt";
+    string errorFile = tmpDir + "/error.txt";
+    string compileErrorFile = tmpDir + "/compile_error.txt";
 
     int timeLimitMs = 2000;
 
