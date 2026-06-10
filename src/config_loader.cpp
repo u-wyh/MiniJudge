@@ -15,6 +15,22 @@ static string trim(const string& s) {
     return s.substr(left, right - left + 1);
 }
 
+static bool parseInt(const string& s, int& value) {
+    try {
+        size_t pos = 0;
+        int v = stoi(s, &pos);
+
+        if (pos != s.size()) {
+            return false;
+        }
+
+        value = v;
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
 bool loadJudgeConfig(const string& configFile, JudgeConfig& config) {
     ifstream fin(configFile);
     if (!fin.is_open()) {
@@ -38,7 +54,14 @@ bool loadJudgeConfig(const string& configFile, JudgeConfig& config) {
         string key = trim(line.substr(0, pos));
         string value = trim(line.substr(pos + 1));
 
-        int v = stoi(value);
+        int v = 0;
+        if (!parseInt(value, v)) {
+            continue;
+        }
+
+        if (v <= 0) {
+            continue;
+        }
 
         if (key == "time_limit_ms") {
             config.timeLimitMs = v;
