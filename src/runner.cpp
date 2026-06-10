@@ -25,6 +25,9 @@ RunResult runProgram(const string& exeFile,
     }
 
     if (pid == 0) {
+        // 让用户程序成为新进程组的组长
+        // 之后它 fork 出来的子进程默认也会留在这个进程组里
+        setpgid(0, 0);
         // 禁止用户程序崩溃时生成 core dump 文件
         struct rlimit coreLimit;
         coreLimit.rlim_cur = 0;
@@ -80,6 +83,9 @@ RunResult runProgram(const string& exeFile,
     }
 
     int status = 0;
+    // 父进程也尝试把子进程放入独立进程组，避免 fork 后的竞态
+    setpgid(pid, pid);
+
     auto start = chrono::steady_clock::now();
     timeUsedMs = 0;
 
@@ -109,7 +115,7 @@ RunResult runProgram(const string& exeFile,
             timeUsedMs = elapsed;
 
             // 超时后杀死用户程序
-            kill(pid, SIGKILL);
+            kill(-pid, SIGKILL);
 
             // 回收子进程，避免僵尸进程
             waitpid(pid, &status, 0);
@@ -118,6 +124,6 @@ RunResult runProgram(const string& exeFile,
         }
 
         // 避免父进程一直空转占 CPU
-        this_thread::sleep_for(chrono::milliseconds(10));
+        this_thread::sleep_for(chrono::milliseconds(1));
     }
 }
