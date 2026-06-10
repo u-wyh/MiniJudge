@@ -42,6 +42,12 @@ RunResult runProgram(const string& exeFile,
         memoryLimit.rlim_max = 128 * 1024 * 1024;
         setrlimit(RLIMIT_AS, &memoryLimit);
 
+        // 限制进程数量：最多 16 个进程
+        struct rlimit processLimit;
+        processLimit.rlim_cur = 16;
+        processLimit.rlim_max = 16;
+        setrlimit(RLIMIT_NPROC, &processLimit);
+
 
         int inFd = open(inputFile.c_str(), O_RDONLY);
         int outFd = open(outputFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
