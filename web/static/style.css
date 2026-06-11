@@ -115,3 +115,58 @@ a:hover {
 .CodeMirror-gutters {
     border-right: 1px solid #444;
 }
+
+.status-box {
+    padding: 22px 26px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    border: 1px solid #ddd;
+}
+
+.status-title {
+    font-size: 34px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.status-meta {
+    font-size: 15px;
+    color: #444;
+}
+
+.status-AC {
+    background: #e8f7ee;
+    border-color: #2ecc71;
+    color: #1e8449;
+}
+
+.status-WA {
+    background: #fdecea;
+    border-color: #e74c3c;
+    color: #c0392b;
+}
+
+.status-TLE {
+    background: #fff4e5;
+    border-color: #f39c12;
+    color: #b9770e;
+}
+
+.status-CE {
+    background: #f4ecf7;
+    border-color: #9b59b6;
+    color: #7d3c98;
+}
+
+.status-RE {
+    background: #fdebd0;
+    border-color: #d35400;
+    color: #a04000;
+}
+
+.status-EMPTY,
+.status-UNKNOWN {
+    background: #eef2f7;
+    border-color: #95a5a6;
+    color: #34495e;
+}

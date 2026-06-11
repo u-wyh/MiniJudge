@@ -6,7 +6,6 @@
 
     <link rel="stylesheet" href="/static/style.css">
 
-    <!-- CodeMirror -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
 
@@ -61,6 +60,19 @@
 
         <div class="card">
             <h2>判题结果</h2>
+
+            {% if status %}
+            <div class="status-box status-{{ status }}">
+                <div class="status-title">{{ status }}</div>
+                <div class="status-meta">
+                    题目：{{ problem.id }}　
+                    用户：{{ user }}　
+                    提交：{{ submission_id }}
+                </div>
+            </div>
+            {% endif %}
+
+            <h3>详细输出</h3>
             <pre class="result">{{ message }}</pre>
         </div>
 

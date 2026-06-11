@@ -78,6 +78,23 @@ def create_submission_file(problem_id, code):
     return submission_id, source_path
 
 
+def parse_status(output):
+    for line in output.splitlines():
+        line = line.strip()
+
+        if line.startswith("Final:"):
+            parts = line.split()
+            if len(parts) >= 2:
+                return parts[1]
+
+        if line.startswith("Result:"):
+            parts = line.split()
+            if len(parts) >= 2:
+                return parts[1]
+
+    return "UNKNOWN"
+
+
 @app.route("/", methods=["GET"])
 def home():
     return redirect("/problems")
@@ -100,7 +117,10 @@ def problem_page(problem_id):
         "index.html",
         problem=problem,
         message="",
-        code=""
+        code="",
+        status="",
+        submission_id="",
+        user=DEFAULT_USER
     )
 
 
@@ -118,7 +138,10 @@ def submit(problem_id):
             "index.html",
             problem=problem,
             message="代码为空！",
-            code=code
+            code=code,
+            status="EMPTY",
+            submission_id="",
+            user=DEFAULT_USER
         )
 
     submission_id, source_path = create_submission_file(problem_id, code)
@@ -140,7 +163,9 @@ def submit(problem_id):
     except Exception as e:
         output = f"判题失败：{e}"
 
-    output = (
+    status = parse_status(output)
+
+    message = (
         f"Problem ID: {problem_id}\n"
         f"User: {DEFAULT_USER}\n"
         f"Submission ID: {submission_id}\n\n"
@@ -150,8 +175,11 @@ def submit(problem_id):
     return render_template(
         "index.html",
         problem=problem,
-        message=output,
-        code=code
+        message=message,
+        code=code,
+        status=status,
+        submission_id=submission_id,
+        user=DEFAULT_USER
     )
 
 
