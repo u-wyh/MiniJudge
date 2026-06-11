@@ -20,3 +20,6 @@ web/venv/
 web/submit.cpp
 web/__pycache__/
 web/*.pyc
+
+# Web submissions
+web/submissions/

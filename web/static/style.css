@@ -104,3 +104,14 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
+.CodeMirror {
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.CodeMirror-gutters {
+    border-right: 1px solid #444;
+}

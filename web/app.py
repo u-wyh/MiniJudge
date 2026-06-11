@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect
 import subprocess
 import json
 import os
+import uuid
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -9,6 +11,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 PROBLEMS_DIR = os.path.join(PROJECT_DIR, "problems")
 MINIJUDGE_PATH = os.path.join(PROJECT_DIR, "minijudge")
+SUBMISSIONS_DIR = os.path.join(BASE_DIR, "submissions")
+
+DEFAULT_USER = "guest"
 
 
 def load_problem(problem_id):
@@ -49,6 +54,28 @@ def load_problem_list():
         problems.append(problem)
 
     return problems
+
+
+def create_submission_file(problem_id, code):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    random_id = uuid.uuid4().hex[:8]
+    submission_id = f"{timestamp}_{random_id}"
+
+    submission_dir = os.path.join(
+        SUBMISSIONS_DIR,
+        problem_id,
+        DEFAULT_USER,
+        submission_id
+    )
+
+    os.makedirs(submission_dir, exist_ok=True)
+
+    source_path = os.path.join(submission_dir, "main.cpp")
+
+    with open(source_path, "w", encoding="utf-8") as f:
+        f.write(code)
+
+    return submission_id, source_path
 
 
 @app.route("/", methods=["GET"])
@@ -94,14 +121,12 @@ def submit(problem_id):
             code=code
         )
 
-    submit_path = os.path.join(BASE_DIR, "submit.cpp")
-
-    with open(submit_path, "w", encoding="utf-8") as f:
-        f.write(code)
+    submission_id, source_path = create_submission_file(problem_id, code)
 
     try:
         result = subprocess.run(
-            [MINIJUDGE_PATH, submit_path, problem["path"]],
+            [MINIJUDGE_PATH, source_path, problem["path"]],
+            cwd=PROJECT_DIR,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             timeout=10,
@@ -114,6 +139,13 @@ def submit(problem_id):
         output = "Flask 调用判题器超时"
     except Exception as e:
         output = f"判题失败：{e}"
+
+    output = (
+        f"Problem ID: {problem_id}\n"
+        f"User: {DEFAULT_USER}\n"
+        f"Submission ID: {submission_id}\n\n"
+        f"{output}"
+    )
 
     return render_template(
         "index.html",

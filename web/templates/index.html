@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ problem.id }} - {{ problem.title }}</title>
+
     <link rel="stylesheet" href="/static/style.css">
+
+    <!-- CodeMirror -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -43,7 +53,7 @@
             <h2>提交代码</h2>
 
             <form action="/submit/{{ problem.id }}" method="post">
-                <textarea name="code" rows="18" placeholder="在这里输入 C++ 代码">{{ code }}</textarea>
+                <textarea id="code-editor" name="code">{{ code }}</textarea>
                 <br>
                 <button type="submit">提交代码</button>
             </form>
@@ -55,5 +65,33 @@
         </div>
 
     </div>
+
+    <script>
+        const textarea = document.getElementById("code-editor");
+
+        const editor = CodeMirror.fromTextArea(textarea, {
+            mode: "text/x-c++src",
+            theme: "dracula",
+            lineNumbers: true,
+            matchBrackets: true,
+            autoCloseBrackets: true,
+            indentUnit: 4,
+            tabSize: 4,
+            indentWithTabs: false,
+            lineWrapping: false
+        });
+
+        editor.setSize("100%", "520px");
+
+        editor.setOption("extraKeys", {
+            Tab: function(cm) {
+                if (cm.somethingSelected()) {
+                    cm.indentSelection("add");
+                } else {
+                    cm.replaceSelection("    ", "end");
+                }
+            }
+        });
+    </script>
 </body>
 </html>
