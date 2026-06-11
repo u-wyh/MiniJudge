@@ -12,3 +12,11 @@ compile_error.txt
 # editor
 .vscode/
 .idea/
+
+# Python virtual environment
+web/venv/
+
+# Web runtime generated files
+web/submit.cpp
+web/__pycache__/
+web/*.pyc

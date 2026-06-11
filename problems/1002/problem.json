@@ -1,0 +1,12 @@
+{
+  "id": "1002",
+  "title": "A * B Problem",
+  "time_limit": "2000 ms",
+  "memory_limit": "128 MB",
+  "output_limit": "1 MB",
+  "description": "输入两个整数 a 和 b，输出它们的乘积。",
+  "input_format": "两个整数 a 和 b",
+  "output_format": "输出 a * b 的结果",
+  "sample_input": "2 3",
+  "sample_output": "6"
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>题目列表 - MiniJudge Web</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+
+        <div class="header">
+            <h1>MiniJudge Web</h1>
+            <p>题目列表</p>
+        </div>
+
+        <div class="card">
+            <h2>题目列表</h2>
+
+            {% if problems %}
+                <table>
+                    <tr>
+                        <th>题号</th>
+                        <th>题目</th>
+                        <th>时间限制</th>
+                        <th>内存限制</th>
+                    </tr>
+
+                    {% for problem in problems %}
+                    <tr>
+                        <td>{{ problem.id }}</td>
+                        <td>
+                            <a href="/problem/{{ problem.id }}">
+                                {{ problem.title }}
+                            </a>
+                        </td>
+                        <td>{{ problem.time_limit }}</td>
+                        <td>{{ problem.memory_limit }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p>暂无题目</p>
+            {% endif %}
+        </div>
+
+    </div>
+</body>
+</html>
