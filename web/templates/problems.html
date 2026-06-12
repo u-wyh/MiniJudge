@@ -1,48 +1,75 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <title>题目列表 - MiniJudge Web</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <div class="container">
+{% extends "base.html" %}
 
-        <div class="header">
-            <h1>MiniJudge Web</h1>
-            <p>题目列表</p>
-        </div>
+{% block title %}题目列表 - MiniJudge Web{% endblock %}
 
-        <div class="card">
-            <h2>题目列表</h2>
+{% block content %}
+<div class="card">
+    <h2>题目列表</h2>
 
-            {% if problems %}
-                <table>
-                    <tr>
-                        <th>题号</th>
-                        <th>题目</th>
-                        <th>时间限制</th>
-                        <th>内存限制</th>
-                    </tr>
+    <form class="filter-form" action="/problems" method="get">
+        <label>
+            <span>搜索：</span>
+            <input type="text" name="keyword" value="{{ keyword }}" placeholder="题号 / 题目名称">
+        </label>
 
-                    {% for problem in problems %}
-                    <tr>
-                        <td>{{ problem.id }}</td>
-                        <td>
-                            <a href="/problem/{{ problem.id }}">
-                                {{ problem.title }}
-                            </a>
-                        </td>
-                        <td>{{ problem.time_limit }}</td>
-                        <td>{{ problem.memory_limit }}</td>
-                    </tr>
-                    {% endfor %}
-                </table>
-            {% else %}
-                <p>暂无题目</p>
-            {% endif %}
-        </div>
+        <label>
+            <span>排序：</span>
+            <select name="sort">
+                <option value="id" {% if selected_sort == "id" %}selected{% endif %}>
+                    按题号排序
+                </option>
+                <option value="total_desc" {% if selected_sort == "total_desc" %}selected{% endif %}>
+                    按提交数排序
+                </option>
+                <option value="ac_desc" {% if selected_sort == "ac_desc" %}selected{% endif %}>
+                    按 AC 数排序
+                </option>
+                <option value="rate_desc" {% if selected_sort == "rate_desc" %}selected{% endif %}>
+                    按通过率排序
+                </option>
+            </select>
+        </label>
 
-    </div>
-</body>
-</html>
+        <button type="submit">排序</button>
+        <a class="reset-link" href="/problems">重置</a>
+    </form>
+
+    {% if problems %}
+        <table>
+            <tr>
+                <th>题号</th>
+                <th>题目</th>
+                <th>时间限制</th>
+                <th>内存限制</th>
+                <th>提交数</th>
+                <th>AC 数</th>
+                <th>通过率</th>
+                <th>操作</th>
+            </tr>
+
+            {% for problem in problems %}
+            <tr>
+                <td>{{ problem.id }}</td>
+                <td>
+                    <a href="/problem/{{ problem.id }}">
+                        {{ problem.title }}
+                    </a>
+                </td>
+                <td>{{ problem.time_limit }}</td>
+                <td>{{ problem.memory_limit }}</td>
+                <td>{{ problem.stats.total }}</td>
+                <td>{{ problem.stats.ac }}</td>
+                <td>{{ problem.stats.ac_rate }}</td>
+                <td>
+                    <a class="small-action" href="/submissions?problem_id={{ problem.id }}">
+                        查看提交
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>暂无题目</p>
+    {% endif %}
+</div>
+{% endblock %}

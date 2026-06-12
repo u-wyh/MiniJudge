@@ -20,7 +20,9 @@
         <div class="header">
             <h1>MiniJudge Web</h1>
             <p>
-                <a href="/problems">返回题目列表</a>
+                <a href="/">首页</a>　
+                <a href="/problems">题目列表</a>　
+                <a href="/submissions">提交记录</a>
             </p>
         </div>
 
@@ -49,17 +51,38 @@
         </div>
 
         <div class="card">
-            <h2>提交代码</h2>
+            <h2 id="submit-code">提交代码</h2>
 
-            <form action="/submit/{{ problem.id }}" method="post">
+            <form action="/submit/{{ problem.id }}#judge-result" method="post" onsubmit="return validateSubmit()">
+                <div class="submit-toolbar">
+                    <label>
+                        <span>语言：</span>
+                        <select name="language">
+                            {% for lang in languages %}
+                                <option value="{{ lang.id }}" {% if selected_language == lang.id %}selected{% endif %}>
+                                    {{ lang.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </label>
+
+                    <button type="button" class="toolbar-button" onclick="fillCppTemplate()">
+                        填入 C++17 模板
+                    </button>
+
+                    <button type="button" class="toolbar-button danger-button" onclick="clearEditor()">
+                        清空代码
+                    </button>
+                </div>
+
                 <textarea id="code-editor" name="code">{{ code }}</textarea>
                 <br>
-                <button type="submit">提交代码</button>
+                <button id="submit-button" type="submit">提交代码</button>
             </form>
         </div>
 
         <div class="card">
-            <h2>判题结果</h2>
+            <h2 id="judge-result">判题结果</h2>
 
             {% if status %}
             <div class="status-box status-{{ status }}">
@@ -73,7 +96,56 @@
             {% endif %}
 
             <h3>详细输出</h3>
-            <pre class="result">{{ message }}</pre>
+            <pre id="judge-output" class="result">{{ message }}</pre>
+
+    {% if status %}
+    <p>
+        <button type="button" class="toolbar-button" onclick="copyJudgeOutput()">
+            复制详细输出
+        </button>
+        <a class="small-action" href="#submit-code">返回代码区</a>
+    </p>
+    {% endif %}
+        </div>
+
+        <div class="card">
+            <h2>最近提交</h2>
+
+            {% if recent_submissions %}
+                <table>
+                    <tr>
+                        <th>提交ID</th>
+                        <th>用户</th>
+                        <th>语言</th>
+                        <th>结果</th>
+                        <th>时间</th>
+                    </tr>
+
+                    {% for s in recent_submissions %}
+                    <tr>
+                        <td>
+                            <a href="/submission/{{ s.problem_id }}/{{ s.user }}/{{ s.submission_id }}">
+                                {{ s.submission_id }}
+                            </a>
+                        </td>
+                        <td>{{ s.user }}</td>
+                        <td>{{ s.language }}</td>
+                        <td>
+                            <span class="status-badge status-{{ s.status }}">
+                                {{ s.status }}
+                            </span>
+                        </td>
+                        <td>{{ s.created_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+
+                <p>
+                    <a href="/submissions?problem_id={{ problem.id }}">查看本题全部提交</a>
+                </p>
+            {% else %}
+                <p>暂无提交记录</p>
+            {% endif %}
         </div>
 
     </div>
@@ -104,6 +176,42 @@
                 }
             }
         });
-    </script>
+
+        function fillCppTemplate() {
+            const template = `#include <iostream>
+using namespace std;
+
+int main() {
+    int a, b;
+    cin >> a >> b;
+    cout << a + b << endl;
+    return 0;
+}
+`;
+            editor.setValue(template);
+            editor.focus();
+        }
+
+        function clearEditor() {
+            editor.setValue("");
+            editor.focus();
+        }
+    
+function copyJudgeOutput() {
+    const output = document.getElementById("judge-output");
+
+    if (!output) {
+        alert("没有可复制的输出！");
+        return;
+    }
+
+    navigator.clipboard.writeText(output.innerText).then(function() {
+        alert("详细输出已复制！");
+    }).catch(function() {
+        alert("复制失败，请手动选择复制。");
+    });
+}
+
+</script>
 </body>
 </html>

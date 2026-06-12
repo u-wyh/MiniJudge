@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}MiniJudge Web{% endblock %}</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+
+        <div class="header">
+            <h1>MiniJudge Web</h1>
+            <p>
+                <a href="/">首页</a>　
+                <a href="/problems">题目列表</a>　
+                <a href="/submissions">提交记录</a>
+            </p>
+        </div>
+
+        {% block content %}{% endblock %}
+
+    </div>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

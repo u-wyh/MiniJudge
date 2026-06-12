@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>提交详情 - MiniJudge Web</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+    <!-- highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+</head>
+<body>
+    <div class="container">
+
+        <div class="header">
+            <h1>MiniJudge Web</h1>
+            <p>
+                <a href="/problems">题目列表</a>　
+                <a href="/submissions">提交记录</a>
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>提交详情</h2>
+
+            <div class="status-box status-{{ status }}">
+                <div class="status-title">{{ status }}</div>
+                <div class="status-meta">
+                    题目：{{ problem_id }}　
+                    用户：{{ user }}　
+                    语言：{{ language }}　
+                    提交：{{ submission_id }}
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>提交代码</h2>
+            <pre class="code-view"><code id="submitted-code" class="language-cpp">{{ source_code }}</code></pre>
+
+            <p>
+                <button type="button" class="toolbar-button" onclick="copySubmittedCode()">
+                    复制提交代码
+                </button>
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>详细输出</h2>
+            <pre class="result">{{ result_text }}</pre>
+        </div>
+
+    </div>
+
+    <script>
+        hljs.highlightAll();
+    </script>
+    <script>
+        function copySubmittedCode() {
+            const code = document.getElementById("submitted-code");
+
+            if (!code) {
+                alert("没有可复制的代码！");
+                return;
+            }
+
+            navigator.clipboard.writeText(code.innerText).then(function() {
+                alert("提交代码已复制！");
+            }).catch(function() {
+                alert("复制失败，请手动选择复制。");
+            });
+        }
+    </script>
+</body>
+</html>

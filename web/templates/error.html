@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}错误 - MiniJudge Web{% endblock %}
+
+{% block content %}
+<div class="card error-card">
+    <h2>{{ title }}</h2>
+
+    <p>{{ message }}</p>
+
+    <div class="error-actions">
+        <a class="main-action" href="/">返回首页</a>
+        <a class="main-action secondary-action" href="/problems">返回题目列表</a>
+    </div>
+</div>
+{% endblock %}

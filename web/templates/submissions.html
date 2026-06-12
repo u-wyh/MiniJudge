@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}提交记录 - MiniJudge Web{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>提交记录</h2>
+
+    <form class="filter-form" action="/submissions" method="get">
+        <label>
+            <span>搜索：</span>
+            <input type="text" name="keyword" value="{{ keyword }}" placeholder="提交ID / 题号 / 用户 / 结果">
+        </label>
+
+        <label>
+            <span>题目：</span>
+            <select name="problem_id">
+                <option value="">全部题目</option>
+                {% for p in problems %}
+                    <option value="{{ p.id }}" {% if selected_problem_id == p.id %}selected{% endif %}>
+                        {{ p.id }} - {{ p.title }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            <span>结果：</span>
+            <select name="status">
+                <option value="">全部结果</option>
+                {% for st in ["AC", "WA", "TLE", "CE", "RE", "UNKNOWN"] %}
+                    <option value="{{ st }}" {% if selected_status == st %}selected{% endif %}>
+                        {{ st }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            <span>排序：</span>
+            <select name="sort">
+                <option value="time_desc" {% if selected_sort == "time_desc" %}selected{% endif %}>
+                    最新提交优先
+                </option>
+                <option value="time_asc" {% if selected_sort == "time_asc" %}selected{% endif %}>
+                    最早提交优先
+                </option>
+                <option value="problem_id" {% if selected_sort == "problem_id" %}selected{% endif %}>
+                    按题号排序
+                </option>
+                <option value="status" {% if selected_sort == "status" %}selected{% endif %}>
+                    按结果排序
+                </option>
+            </select>
+        </label>
+
+        <button type="submit">筛选</button>
+        <a class="reset-link" href="/submissions">重置</a>
+    </form>
+
+    {% if selected_problem_id or selected_status or keyword %}
+    <div class="filter-summary">
+        <strong>当前筛选：</strong>
+
+        {% if selected_problem_id %}
+            <span>题目 {{ selected_problem_id }}</span>
+        {% endif %}
+
+        {% if selected_status %}
+            <span>结果 {{ selected_status }}</span>
+        {% endif %}
+
+        {% if keyword %}
+            <span>关键词 {{ keyword }}</span>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-title">总提交</div>
+            <div class="stat-value">{{ stats.total }}</div>
+        </div>
+
+        <div class="stat-card stat-ac">
+            <div class="stat-title">AC</div>
+            <div class="stat-value">{{ stats.AC }}</div>
+        </div>
+
+        <div class="stat-card stat-wa">
+            <div class="stat-title">WA</div>
+            <div class="stat-value">{{ stats.WA }}</div>
+        </div>
+
+        <div class="stat-card stat-ce">
+            <div class="stat-title">CE</div>
+            <div class="stat-value">{{ stats.CE }}</div>
+        </div>
+
+        <div class="stat-card stat-re">
+            <div class="stat-title">RE</div>
+            <div class="stat-value">{{ stats.RE }}</div>
+        </div>
+
+        <div class="stat-card stat-tle">
+            <div class="stat-title">TLE</div>
+            <div class="stat-value">{{ stats.TLE }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-title">AC 率</div>
+            <div class="stat-value">{{ stats.ac_rate }}</div>
+        </div>
+    </div>
+
+    <p class="record-count">
+        当前筛选结果：共 {{ total }} 条提交记录
+    </p>
+
+    {% if submissions %}
+        <table>
+            <tr>
+                <th>提交ID</th>
+                <th>题号</th>
+                <th>用户</th>
+                <th>语言</th>
+                <th>结果</th>
+                <th>时间</th>
+            </tr>
+
+            {% for s in submissions %}
+            <tr>
+                <td>
+                    <a href="/submission/{{ s.problem_id }}/{{ s.user }}/{{ s.submission_id }}">
+                        {{ s.submission_id }}
+                    </a>
+                </td>
+                <td>
+                    <a href="/problem/{{ s.problem_id }}">
+                        {{ s.problem_id }}
+                    </a>
+                </td>
+                <td>{{ s.user }}</td>
+                <td>{{ s.language }}</td>
+                <td>
+                    <span class="status-badge status-{{ s.status }}">
+                        {{ s.status }}
+                    </span>
+                </td>
+                <td>{{ s.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <div class="pagination">
+            {% if page > 1 %}
+                <a href="/submissions?page={{ page - 1 }}&problem_id={{ selected_problem_id }}&status={{ selected_status }}&sort={{ selected_sort }}&keyword={{ keyword }}">
+                    上一页
+                </a>
+            {% else %}
+                <span class="disabled">上一页</span>
+            {% endif %}
+
+            <span class="page-info">
+                第 {{ page }} / {{ total_pages }} 页
+            </span>
+
+            {% if page < total_pages %}
+                <a href="/submissions?page={{ page + 1 }}&problem_id={{ selected_problem_id }}&status={{ selected_status }}&sort={{ selected_sort }}&keyword={{ keyword }}">
+                    下一页
+                </a>
+            {% else %}
+                <span class="disabled">下一页</span>
+            {% endif %}
+        </div>
+    {% else %}
+        <p>暂无提交记录</p>
+    {% endif %}
+</div>
+{% endblock %}

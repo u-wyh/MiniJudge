@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}MiniJudge Web{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>系统概览</h2>
+
+    <div class="stats-grid dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-title">题目总数</div>
+            <div class="stat-value">{{ stats.total_problems }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-title">提交总数</div>
+            <div class="stat-value">{{ stats.total_submissions }}</div>
+        </div>
+
+        <div class="stat-card stat-ac">
+            <div class="stat-title">AC 总数</div>
+            <div class="stat-value">{{ stats.total_ac }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-title">AC 率</div>
+            <div class="stat-value">{{ stats.ac_rate }}</div>
+        </div>
+    </div>
+
+    <div class="dashboard-actions">
+        <a class="main-action" href="/problems">进入题目列表</a>
+        <a class="main-action secondary-action" href="/submissions">查看提交记录</a>
+    </div>
+</div>
+
+<div class="card">
+    <h2>最近提交</h2>
+
+    {% if recent_submissions %}
+        <table>
+            <tr>
+                <th>提交ID</th>
+                <th>题号</th>
+                <th>用户</th>
+                <th>结果</th>
+                <th>时间</th>
+            </tr>
+
+            {% for s in recent_submissions %}
+            <tr>
+                <td>
+                    <a href="/submission/{{ s.problem_id }}/{{ s.user }}/{{ s.submission_id }}">
+                        {{ s.submission_id }}
+                    </a>
+                </td>
+                <td>
+                    <a href="/problem/{{ s.problem_id }}">
+                        {{ s.problem_id }}
+                    </a>
+                </td>
+                <td>{{ s.user }}</td>
+                <td>
+                    <span class="status-badge status-{{ s.status }}">
+                        {{ s.status }}
+                    </span>
+                </td>
+                <td>{{ s.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>暂无提交记录</p>
+    {% endif %}
+</div>
+{% endblock %}
