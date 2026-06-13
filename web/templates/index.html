@@ -67,7 +67,7 @@
                     </label>
 
                     <button type="button" class="toolbar-button" onclick="fillCppTemplate()">
-                        填入 C++17 模板
+                        插入语言模板
                     </button>
 
                     <button type="button" class="toolbar-button danger-button" onclick="clearEditor()">
@@ -177,22 +177,23 @@
             }
         });
 
+        
+
         function fillCppTemplate() {
-            const template = `#include <iostream>
+    const template = `#include <iostream>
 using namespace std;
 
 int main() {
-    int a, b;
-    cin >> a >> b;
-    cout << a + b << endl;
+    // TODO: 在这里编写你的代码
+
     return 0;
 }
 `;
-            editor.setValue(template);
-            editor.focus();
-        }
+    editor.setValue(template);
+    editor.focus();
+}
 
-        function clearEditor() {
+function clearEditor() {
             editor.setValue("");
             editor.focus();
         }

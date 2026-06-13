@@ -24,6 +24,12 @@
         <div class="card">
             <h2>提交详情</h2>
 
+            <div class="detail-actions">
+                <a class="small-action" href="/submissions">返回提交记录</a>
+                <a class="small-action" href="/submissions?problem_id={{ problem_id }}">返回本题提交记录</a>
+                <a class="small-action" href="/problem/{{ problem_id }}">返回题目</a>
+            </div>
+
             <div class="status-box status-{{ status }}">
                 <div class="status-title">{{ status }}</div>
                 <div class="status-meta">

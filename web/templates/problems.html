@@ -13,6 +13,34 @@
         </label>
 
         <label>
+            <span>难度：</span>
+            <select name="difficulty">
+                <option value="" {% if selected_difficulty == "" %}selected{% endif %}>
+                    全部难度
+                </option>
+                {% for diff in ["入门", "简单", "中等", "困难"] %}
+                    <option value="{{ diff }}" {% if selected_difficulty == diff %}selected{% endif %}>
+                        {{ diff }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            <span>标签：</span>
+            <select name="tag">
+                <option value="" {% if selected_tag == "" %}selected{% endif %}>
+                    全部标签
+                </option>
+                {% for tag in all_tags %}
+                    <option value="{{ tag }}" {% if selected_tag == tag %}selected{% endif %}>
+                        {{ tag }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
             <span>排序：</span>
             <select name="sort">
                 <option value="id" {% if selected_sort == "id" %}selected{% endif %}>
@@ -35,10 +63,13 @@
     </form>
 
     {% if problems %}
-        <table>
+        <div class="table-wrapper">
+        <table class="problem-table">
             <tr>
                 <th>题号</th>
                 <th>题目</th>
+                <th>难度</th>
+                <th>标签</th>
                 <th>时间限制</th>
                 <th>内存限制</th>
                 <th>提交数</th>
@@ -55,11 +86,39 @@
                         {{ problem.title }}
                     </a>
                 </td>
+                <td>
+                    <span class="difficulty-badge">
+                        {{ problem.difficulty | default("未设置") }}
+                    </span>
+                </td>
+                <td>
+                    {% if problem.tags %}
+                        {% for tag in problem.tags %}
+                            <span class="tag-badge">{{ tag }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="muted">无标签</span>
+                    {% endif %}
+                </td>
                 <td>{{ problem.time_limit }}</td>
                 <td>{{ problem.memory_limit }}</td>
                 <td>{{ problem.stats.total }}</td>
                 <td>{{ problem.stats.ac }}</td>
-                <td>{{ problem.stats.ac_rate }}</td>
+                <td>
+                    {% set rate_text = problem.stats.ac_rate %}
+                    {% if rate_text == "0.0%" and problem.stats.total == 0 %}
+                        <span class="rate-badge rate-none">{{ rate_text }}</span>
+                    {% else %}
+                        {% set rate_value = rate_text.replace("%", "") | float %}
+                        {% if rate_value >= 70 %}
+                            <span class="rate-badge rate-high">{{ rate_text }}</span>
+                        {% elif rate_value >= 40 %}
+                            <span class="rate-badge rate-mid">{{ rate_text }}</span>
+                        {% else %}
+                            <span class="rate-badge rate-low">{{ rate_text }}</span>
+                        {% endif %}
+                    {% endif %}
+                </td>
                 <td>
                     <a class="small-action" href="/submissions?problem_id={{ problem.id }}">
                         查看提交
@@ -68,6 +127,7 @@
             </tr>
             {% endfor %}
         </table>
+    </div>
     {% else %}
         <p>暂无题目</p>
     {% endif %}

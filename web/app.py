@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 import os
 
-from services.problem_service import load_problem, load_problem_list
+from services.problem_service import load_problem, load_problem_list, get_problem_stats
 from services.submission_service import (
     create_submission_file,
     parse_status,
@@ -29,6 +29,16 @@ SUPPORTED_LANGUAGES = [
         "name": "C++17"
     }
 ]
+
+GENERIC_CPP_TEMPLATE = """#include <iostream>
+using namespace std;
+
+int main() {
+    // TODO: 在这里编写你的代码
+
+    return 0;
+}
+"""
 
 
 def get_language_name(language_id):
@@ -100,8 +110,16 @@ def home():
 def problems_page():
     selected_sort = request.args.get("sort", "id")
     keyword = request.args.get("keyword", "").strip()
+    selected_difficulty = request.args.get("difficulty", "")
+    selected_tag = request.args.get("tag", "")
 
     problems = load_problem_list(PROBLEMS_DIR, SUBMISSIONS_DIR)
+
+    all_tags = sorted({
+        tag
+        for p in problems
+        for tag in p.get("tags", [])
+    })
 
     if keyword:
         lower_keyword = keyword.lower()
@@ -109,6 +127,18 @@ def problems_page():
             p for p in problems
             if lower_keyword in p["id"].lower()
             or lower_keyword in p["title"].lower()
+        ]
+
+    if selected_difficulty:
+        problems = [
+            p for p in problems
+            if p.get("difficulty", "") == selected_difficulty
+        ]
+
+    if selected_tag:
+        problems = [
+            p for p in problems
+            if selected_tag in p.get("tags", [])
         ]
 
     def rate_value(problem):
@@ -140,7 +170,10 @@ def problems_page():
         "problems.html",
         problems=problems,
         selected_sort=selected_sort,
-        keyword=keyword
+        keyword=keyword,
+        selected_difficulty=selected_difficulty,
+        selected_tag=selected_tag,
+        all_tags=all_tags
     )
 
 
@@ -244,23 +277,36 @@ def problem_page(problem_id):
             message="你访问的题目不存在，可能是题号错误或题目文件缺失。"
         ), 404
 
-    all_submissions = load_submissions(SUBMISSIONS_DIR)
-    recent_submissions = [
-        s for s in all_submissions
-        if s["problem_id"] == problem_id
-    ][:5]
+    problem["stats"] = get_problem_stats(problem_id, SUBMISSIONS_DIR)
+
+    prev_problem = None
+    next_problem = None
+
+    all_problems = load_problem_list(PROBLEMS_DIR, SUBMISSIONS_DIR)
+    problem_ids = [p["id"] for p in all_problems]
+
+    if problem_id in problem_ids:
+        current_index = problem_ids.index(problem_id)
+
+        if current_index > 0:
+            prev_problem = all_problems[current_index - 1]
+
+        if current_index + 1 < len(all_problems):
+            next_problem = all_problems[current_index + 1]
 
     return render_template(
         "index.html",
         problem=problem,
         message="",
-        code="",
+        code=GENERIC_CPP_TEMPLATE,
         status="",
-        submission_id="",
         user=DEFAULT_USER,
+        submission_id="",
+        language="C++17",
         languages=SUPPORTED_LANGUAGES,
         selected_language="cpp17",
-        recent_submissions=recent_submissions
+        prev_problem=prev_problem,
+        next_problem=next_problem
     )
 
 
